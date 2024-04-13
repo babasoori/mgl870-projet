@@ -17,24 +17,24 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --sarif-file-output=snyk-python.sarif
+          args: --sarif-file-output=snyk-python.sarif --all-projects
       - name: Upload result to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: snyk-python.sarif
-  snyk-node:
-    name: "Snyk Node.js Security Analysis"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run Snyk to check Node.js for vulnerabilities
-        uses: snyk/actions/node@master
-        continue-on-error: true # To make sure that SARIF upload gets called
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --sarif-file-output=snyk-node.sarif
-      - name: Upload Node.js result to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: snyk-node.sarif
+#  snyk-node:
+#    name: "Snyk Node.js Security Analysis"
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v4
+#      - name: Run Snyk to check Node.js for vulnerabilities
+#        uses: snyk/actions/node@master
+#        continue-on-error: true # To make sure that SARIF upload gets called
+#        env:
+#          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+#        with:
+#          args: --sarif-file-output=snyk-node.sarif
+#      - name: Upload Node.js result to GitHub Code Scanning
+#        uses: github/codeql-action/upload-sarif@v3
+#        with:
+#          sarif_file: snyk-node.sarif
