@@ -28,7 +28,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       - uses: pulumi/actions@v5
         with:
-          command: preview
+          command: preview --policy-pack policypack
           stack-name: nuagique/dev
           work-dir: pulumi
         env:
