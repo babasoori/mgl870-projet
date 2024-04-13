@@ -1,0 +1,7 @@
+name: mgl870
+runtime: nodejs
+description: Projet MGL870 DevOps
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: https://www.pulumi.com/ai/api/project/5e503a5d-ad81-4b90-b5e2-c268fb66b62a.zip
