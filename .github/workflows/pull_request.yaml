@@ -29,7 +29,15 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       - name: Run Pulumi with policy pack
         run: |
-          docker run -e PULUMI_ACCESS_TOKEN -v $(pwd):/pulumi --workdir /pulumi pulumi/pulumi:latest preview --policy-pack policypack
+          docker run -e PULUMI_ACCESS_TOKEN -v $(pwd)/pulumi:/pulumi --workdir /pulumi pulumi/pulumi:latest preview --policy-pack policypack
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+      - name: Install Pulumi CLI
+        uses: pulumi/setup-pulumi@v2
+      - name: Pulumi Preview
+        run: |
+          cd pulumi
+          pulumi preview --policy-pack policypack
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
       - uses: pulumi/actions@v5
