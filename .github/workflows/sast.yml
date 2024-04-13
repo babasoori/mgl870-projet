@@ -1,4 +1,4 @@
-name: Snyk Python Security Analysis
+name: Snyk Security Analysis
 on:
   push:
     branches:
