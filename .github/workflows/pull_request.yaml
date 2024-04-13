@@ -1,0 +1,45 @@
+name: Pulumi Preview
+on:
+  - pull_request
+jobs:
+  pulumi-preview:
+    name: Pulumi Preview
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'latest'
+      - name: Install dependencies node
+        run: |
+          cd pulumi
+          npm install
+          cd policypack
+          npm install
+      - name: Run Docker command
+        run: |
+          mkdir -p lambda_layer/python
+          docker run -v ${PWD}:/var/task -w /var/task amazonlinux /bin/bash -c "yum install -y python3-pip && pip3 install --platform manylinux2014_x86_64 --target lambda_layer/python --python-version 3.12 --only-binary=:all: -r requirements.txt"
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Install Pulumi CLI
+        uses: pulumi/setup-pulumi@v2
+      - name: Pulumi Preview
+        continue-on-error: true
+        run: |
+          cd pulumi
+          pulumi stack select nuagique/dev
+          pulumi preview --policy-pack policypack
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+      - uses: pulumi/actions@v5
+        with:
+          command: preview
+          stack-name: nuagique/dev
+          work-dir: pulumi
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
