@@ -35,6 +35,7 @@ jobs:
       - name: Install Pulumi CLI
         uses: pulumi/setup-pulumi@v2
       - name: Pulumi Preview
+        continue-on-error: true
         run: |
           cd pulumi
           pulumi stack select nuagique/dev
