@@ -59,11 +59,16 @@ def process_games(data):
                     'top_scorer': leader['leaders'][0]['athlete']['displayName'],
                     'points': leader['leaders'][0]['displayValue'] + ' ' +
                     leader['shortDisplayName']
+                    if leader['name'] == 'pointsPerGame'
+                    else leader['leaders'][0]['displayValue'] + ' total',
+                    'score': competitor['score']
+                    if leader['name'] == 'points'
+                    else 'Game has not started yet'
                 }
-                for competition in event.get('competitions', [])
+                for competition in event['competitions']
                 for competitor in competition['competitors']
-                for leader in competitor.get('leaders', [])
-                if leader['name'] == 'pointsPerGame'
+                for leader in competitor.get('leaders')
+                if leader['name'] in ['pointsPerGame', 'points']
             ]
         }
         for event in data.get('events', [])
