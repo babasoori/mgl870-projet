@@ -1,7 +1,6 @@
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
 
-// Create an IAM role for the Lambda function
 const lambdaRole = new aws.iam.Role("lambdaRole", {
     assumeRolePolicy: JSON.stringify({
         Version: "2012-10-17",
@@ -15,13 +14,11 @@ const lambdaRole = new aws.iam.Role("lambdaRole", {
     }),
 });
 
-// Attach the AWSLambdaBasicExecutionRole policy to the IAM role
 const lambdaRolePolicyAttachment = new aws.iam.RolePolicyAttachment("lambdaRolePolicyAttachment", {
     role: lambdaRole,
     policyArn: aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
 });
 
-// Create a policy that allows writing logs to CloudWatch
 const logPolicy = new aws.iam.Policy("logPolicy", {
     policy: JSON.stringify({
         Version: "2012-10-17",
@@ -37,7 +34,6 @@ const logPolicy = new aws.iam.Policy("logPolicy", {
     }),
 });
 
-// Attach the policy to the IAM role
 const logPolicyAttachment = new aws.iam.RolePolicyAttachment("logPolicyAttachment", {
     role: lambdaRole,
     policyArn: logPolicy.arn,
@@ -51,26 +47,24 @@ const layer = new aws.lambda.LayerVersion("lambdaLayer", {
     compatibleRuntimes: ["python3.12"],
 });
 
-// Create a Lambda function that uses the Layer
 const lambdaFunction = new aws.lambda.Function("sportsTickerFunction", {
-    runtime: aws.lambda.Python3d8Runtime,
+    runtime: "python3.12",
     code: new pulumi.asset.FileArchive("../src"),
-    handler: "sports_ticker.handler", // Assuming the handler function is named 'handler' in sports_ticker.py
+    handler: "sports_ticker.lambda_handler",
     layers: [layer.arn],
-    role: lambdaRole.arn, // Replace with the ARN of the IAM role for the Lambda function
+    role: lambdaRole.arn,
 });
 
 const logGroup = new aws.cloudwatch.LogGroup("logGroup", {
     name: lambdaFunction.name.apply(name => `/aws/lambda/${name}`),
-    retentionInDays: 14, // Set the retention period to 14 days
+    retentionInDays: 14,
 });
 
 
 const awsPermissionResource = new aws.lambda.Permission("awsPermissionResource", {
-    action: "lambda:InvokeFunction",
+    action: "lambda:InvokeFunctionUrl",
     "function": lambdaFunction.name,
+    functionUrlAuthType: "NONE",
     principal: "*",
 });
-
-// Export the name of the lambda function
 export const lambdaFunctionName = lambdaFunction.name;
